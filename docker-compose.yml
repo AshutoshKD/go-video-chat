@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    networks:
+      - app-network
+    restart: always  # Add this line to ensure the backend restarts automatically
+
+  frontend:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+    ports:
+      - "3000:3000"  # Map port 3000 on host to port 3000 in the container
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

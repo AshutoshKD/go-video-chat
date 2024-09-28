@@ -61,6 +61,7 @@ func broadcaster() {
 
 // JoinRoomRequestHandler will join the client in a particular room
 func JoinRoomRequestHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	roomID, ok := r.URL.Query()["roomID"]
 
 	if !ok {
