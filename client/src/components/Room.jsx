@@ -41,9 +41,11 @@ const Room = (props) => {
             userVideo.current.srcObject = stream;
             userStream.current = stream;
 
-            webSocketRef.current = new WebSocket(
-                `ws://go-video-chat-backend.onrender.com/join?roomID=${props.match.params.roomID}`
-            );
+            // Determine the WebSocket protocol based on the current page protocol
+            const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
+            const webSocketURL = `${protocol}go-video-chat-backend.onrender.com/join?roomID=${props.match.params.roomID}`;
+
+            webSocketRef.current = new WebSocket(webSocketURL);
 
             webSocketRef.current.addEventListener("open", () => {
                 console.log("WebSocket connection established.");
