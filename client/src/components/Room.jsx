@@ -46,7 +46,16 @@ const Room = (props) => {
             );
 
             webSocketRef.current.addEventListener("open", () => {
+                console.log("WebSocket connection established.");
                 webSocketRef.current.send(JSON.stringify({ join: true }));
+            });
+
+            webSocketRef.current.addEventListener("error", (error) => {
+                console.error("WebSocket error:", error);
+            });
+
+            webSocketRef.current.addEventListener("close", () => {
+                console.log("WebSocket connection closed.");
             });
 
             webSocketRef.current.addEventListener("message", async (e) => {
@@ -56,7 +65,7 @@ const Room = (props) => {
                     callUser();
                 }
 
-				if (message.offer) {
+                if (message.offer) {
                     handleOffer(message.offer);
                 }
 
@@ -64,7 +73,11 @@ const Room = (props) => {
                     console.log("Receiving Answer");
                     peerRef.current.setRemoteDescription(
                         new RTCSessionDescription(message.answer)
-                    );
+                    ).then(() => {
+                        console.log("Remote description set successfully.");
+                    }).catch(err => {
+                        console.error("Error setting remote description:", err);
+                    });
                 }
 
                 if (message.iceCandidate) {
@@ -73,13 +86,14 @@ const Room = (props) => {
                         await peerRef.current.addIceCandidate(
                             message.iceCandidate
                         );
+                        console.log("ICE Candidate added successfully.");
                     } catch (err) {
                         console.log("Error Receiving ICE Candidate", err);
                     }
                 }
             });
         });
-    });
+    }, [props.match.params.roomID]); // Add dependency to useEffect
 
     const handleOffer = async (offer) => {
         console.log("Received Offer, Creating Answer");
@@ -87,7 +101,11 @@ const Room = (props) => {
 
         await peerRef.current.setRemoteDescription(
             new RTCSessionDescription(offer)
-        );
+        ).then(() => {
+            console.log("Remote description set successfully.");
+        }).catch(err => {
+            console.error("Error setting remote description:", err);
+        });
 
         userStream.current.getTracks().forEach((track) => {
             peerRef.current.addTrack(track, userStream.current);
@@ -120,6 +138,15 @@ const Room = (props) => {
         peer.onicecandidate = handleIceCandidateEvent;
         peer.ontrack = handleTrackEvent;
 
+        peer.onconnectionstatechange = () => {
+            console.log("Connection state changed to:", peer.connectionState);
+            if (peer.connectionState === "connected") {
+                console.log("Peer connection established successfully.");
+            } else if (peer.connectionState === "disconnected") {
+                console.log("Peer connection disconnected.");
+            }
+        };
+
         return peer;
     };
 
@@ -133,7 +160,9 @@ const Room = (props) => {
             webSocketRef.current.send(
                 JSON.stringify({ offer: peerRef.current.localDescription })
             );
-        } catch (err) {}
+        } catch (err) {
+            console.error("Error during negotiation:", err);
+        }
     };
 
     const handleIceCandidateEvent = (e) => {
