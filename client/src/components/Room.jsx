@@ -42,7 +42,7 @@ const Room = (props) => {
             userStream.current = stream;
 
             webSocketRef.current = new WebSocket(
-                `ws://localhost:8000/join?roomID=${props.match.params.roomID}`
+                `ws://go-video-chat-backend.onrender.com/join?roomID=${props.match.params.roomID}`
             );
 
             webSocketRef.current.addEventListener("open", () => {
