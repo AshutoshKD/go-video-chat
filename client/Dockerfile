@@ -4,13 +4,13 @@ FROM node:18 AS build
 WORKDIR /app
 
 # Copy package.json and package-lock.json
-COPY client/package.json client/package-lock.json ./
+COPY package.json package-lock.json ./
 
 # Install dependencies
 RUN npm install
 
 # Copy the rest of the application code
-COPY client/ ./
+COPY / ./
 
 # Build the React application
 RUN npm run build
@@ -24,7 +24,7 @@ WORKDIR /app
 COPY --from=build /app/dist ./build
 
 # Copy the server file
-COPY client/server.js ./
+COPY server.js ./
 
 # Install Express
 RUN npm install express
