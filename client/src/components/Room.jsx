@@ -16,7 +16,7 @@ const Room = (props) => {
         if (cameras.length === 0) {
             console.error("No cameras found.");
             alert("No camera devices found. Please connect a camera.");
-            return; // Exit the function if no cameras are available
+            return; 
         }
 
         console.log(cameras);
@@ -24,13 +24,13 @@ const Room = (props) => {
         const constraints = {
             audio: true,
             video: {
-                deviceId: cameras[0].deviceId, // Use the first available camera
+                deviceId: cameras[0].deviceId, 
             },
         };
 
         try {
             const stream = await navigator.mediaDevices.getUserMedia(constraints);
-            return stream; // Return the stream for use
+            return stream; 
         } catch (err) {
             console.log("Error accessing media devices:", err);
         }
@@ -56,7 +56,7 @@ const Room = (props) => {
                     callUser();
                 }
 
-				if (message.offer) {
+                if (message.offer) {
                     handleOffer(message.offer);
                 }
 
@@ -151,10 +151,66 @@ const Room = (props) => {
         partnerVideo.current.srcObject = e.streams[0];
     };
 
+    const copyToClipboard = () => {
+        const roomUrl = window.location.href; 
+        navigator.clipboard.writeText(roomUrl)
+            .then(() => {
+                alert("Room URL copied to clipboard!"); 
+            })
+            .catch(err => {
+                console.error("Failed to copy: ", err);
+            });
+    };
+
+    useEffect(() => {
+    }, [props.match.params.roomID]);
+
+    const styles = {
+        container: {
+            textAlign: 'center',
+            marginTop: '20px',
+        },
+        videoContainer: {
+            display: 'flex',
+            justifyContent: 'center',
+            marginBottom: '20px',
+        },
+        video: {
+            width: '45%',
+            margin: '0 10px',
+            borderRadius: '8px',
+            border: '2px solid #ccc',
+        },
+        button: {
+            padding: '10px 20px',
+            fontSize: '16px',
+            color: 'white',
+            backgroundColor: '#007bff',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer',
+            transition: 'background-color 0.3s ease',
+        },
+        buttonHover: {
+            backgroundColor: '#0056b3',
+        },
+    };
+
     return (
-        <div>
-            <video autoPlay controls={true} ref={userVideo}></video>
-            <video autoPlay controls={true} ref={partnerVideo}></video>
+        <div style={styles.container}>
+            <h2>Room ID: {props.match.params.roomID}</h2>
+            <div style={styles.videoContainer}>
+                <video autoPlay controls={true} ref={userVideo} style={styles.video}></video>
+                <video autoPlay controls={true} ref={partnerVideo} style={styles.video}></video>
+            </div>
+            <button 
+                onClick={copyToClipboard} 
+                style={styles.button}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = styles.buttonHover.backgroundColor} // Change color on hover
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = styles.button.backgroundColor} // Reset color
+            >
+                Copy Room URL
+            </button>
         </div>
     );
 };
