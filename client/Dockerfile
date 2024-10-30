@@ -31,6 +31,7 @@ RUN npm install express
 
 # Expose the port the app runs on
 EXPOSE 3000
+EXPOSE 10000
 
 # Command to run the Express server
 CMD ["node", "server.js"]
